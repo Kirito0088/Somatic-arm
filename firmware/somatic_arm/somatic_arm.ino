@@ -13,12 +13,24 @@ Servo servos[3];
 float level = 0;            // smoothed EMG reading, 0-1023
 int openAt, closeAt;
 bool closed = false;
-bool locked = false;        // after a forced open, wait until the arm relaxes
+bool locked = false;        // after calibration or a forced open, wait until the arm relaxes
 unsigned long closedSince = 0;
 
+// Also prints during calibration, so the Serial Plotter shows the signal even when calibration keeps failing.
 void readLevel() {
   level += 0.1 * (analogRead(EMG_PIN) - level);
   delay(5);
+
+  static unsigned long lastPrint = 0;
+  if (millis() - lastPrint >= 20) {
+    lastPrint = millis();
+    Serial.print("emg:");
+    Serial.print((int)level);
+    Serial.print(" close:");
+    Serial.print(closeAt);
+    Serial.print(" open:");
+    Serial.println(openAt);
+  }
 }
 
 // Average level over ms (relax), or peak level while blinking the LED (squeeze).
@@ -82,6 +94,7 @@ void setup() {
   }
   level = analogRead(EMG_PIN);
   calibrate();
+  locked = true;  // the calibration squeeze may still be on: don't close until the arm relaxes
 }
 
 void loop() {
@@ -95,16 +108,5 @@ void loop() {
   } else if (closed && millis() - closedSince > MAX_HOLD_MS) {
     moveAll(false);
     locked = true;
-  }
-
-  static unsigned long lastPrint = 0;
-  if (millis() - lastPrint >= 20) {
-    lastPrint = millis();
-    Serial.print("emg:");
-    Serial.print((int)level);
-    Serial.print(" close:");
-    Serial.print(closeAt);
-    Serial.print(" open:");
-    Serial.println(openAt);
   }
 }
