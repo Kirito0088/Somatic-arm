@@ -1,0 +1,573 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Somatic Arm: finish the assembly</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { font-family: Inter, "DejaVu Sans", sans-serif; color: #16202a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; padding: 11mm 12mm 12mm; position: relative; overflow: hidden; page-break-after: always; display: flex; flex-direction: column; gap: 4mm; }
+.page:last-child { page-break-after: auto; }
+.foot { position: absolute; bottom: 5mm; left: 12mm; right: 12mm; font-size: 7.5pt; color: #8a95a0; display: flex; justify-content: space-between; }
+h1 { font-size: 25pt; line-height: 1.1; margin: 0; color: #1b4f8a; letter-spacing: -.01em; }
+.sub { font-size: 10.5pt; color: #55636f; margin: 1mm 0 0; }
+.step { border: 1px solid #d3dae1; border-radius: 3.5mm; padding: 4mm 4.5mm; display: flex; flex-direction: column; gap: 3mm; background: #fbfcfd; }
+.step-h { display: flex; align-items: center; gap: 3mm; }
+.num { flex: none; width: 11mm; height: 11mm; border-radius: 50%; background: #1b4f8a; color: #fff; font-weight: 800; font-size: 17pt; display: flex; align-items: center; justify-content: center; }
+.step-h h2 { font-size: 16pt; line-height: 1.15; margin: 0; flex: 1; }
+.tag { flex: none; font-size: 7.5pt; font-weight: 800; color: #fff; padding: 1mm 3mm; border-radius: 3mm; letter-spacing: .05em; text-transform: uppercase; }
+.t-red { background: #c62828; } .t-blue { background: #1b4f8a; } .t-green { background: #1e7d45; } .t-amber { background: #a86400; } .t-purple { background: #7b3fa8; }
+ol.do, ul.do { font-size: 11pt; line-height: 1.38; margin: 0; padding-left: 5.5mm; }
+ol.do li, ul.do li { margin: .6mm 0; }
+.done { background: #e3f3e9; color: #0b5e33; border-radius: 2mm; padding: 2mm 3mm; font-size: 10pt; font-weight: 600; }
+.done::before { content: "\2714  DONE WHEN: "; font-weight: 800; }
+.warn { background: #fdebea; color: #9e1c12; border-radius: 2mm; padding: 2mm 3mm; font-size: 10pt; font-weight: 600; }
+.note { background: #eef3f9; color: #1d3f66; border-radius: 2mm; padding: 2mm 3mm; font-size: 9.5pt; }
+.r { color: #c62828; font-weight: 700; } .b { color: #1e5fc8; font-weight: 700; } .g { color: #1e7d45; font-weight: 700; }
+.row { display: flex; gap: 4mm; align-items: flex-start; }
+.col { display: flex; flex-direction: column; gap: 3mm; }
+img { display: block; max-width: 100%; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 1.2mm; }
+figcaption { font-size: 8.5pt; color: #66727d; }
+.pic { border: 1px solid #e1e6eb; border-radius: 2mm; background: #fff; }
+.chip { display: inline-flex; align-items: center; justify-content: center; min-width: 6mm; height: 6mm; padding: 0 1.4mm; border-radius: 3mm; color: #fff; font-weight: 800; font-size: 8.5pt; margin: 0 .4mm; vertical-align: middle; }
+.c-r { background: #d32f2f; } .c-b { background: #1e64c8; } .c-g { background: #8d99a6; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; background: #eef1f4; padding: .3mm 1.2mm; border-radius: 1mm; }
+.map { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; }
+.map div { border: 1px solid #d3dae1; border-radius: 2mm; padding: 1.6mm 2mm; font-size: 8.8pt; line-height: 1.25; background: #fff; display: flex; gap: 1.6mm; align-items: center; }
+.map b { flex: none; width: 6mm; height: 6mm; border-radius: 50%; background: #1b4f8a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 9pt; }
+.legend { display: flex; flex-direction: column; gap: 2.2mm; font-size: 10.5pt; line-height: 1.3; }
+.legend div { display: flex; gap: 2.5mm; align-items: flex-start; }
+.badge { flex: none; width: 7mm; height: 7mm; border-radius: 50%; color: #fff; font-weight: 800; font-size: 10pt; display: flex; align-items: center; justify-content: center; }
+.bg-ok { background: #1e7d45; } .bg-bad { background: #c62828; } .bg-mid { background: #d97706; }
+.kit { font-size: 9.5pt; line-height: 1.35; columns: 2; column-gap: 6mm; margin: 0; padding-left: 4.5mm; }
+table.fix { border-collapse: collapse; width: 100%; font-size: 9.8pt; }
+table.fix th, table.fix td { border-bottom: 1px solid #dfe5ea; padding: 1.8mm 2mm; text-align: left; vertical-align: top; }
+table.fix th { background: #eef1f4; font-size: 8pt; text-transform: uppercase; letter-spacing: .05em; color: #55636f; }
+svg text { font-family: Inter, "DejaVu Sans", sans-serif; }
+</style></head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div>
+    <h1>Somatic Arm: finish the assembly</h1>
+    <p class="sub">Starts from your photo (7 Oct). 10 steps. <span class="r">Red</span> = closing string (palm side). <span class="b">Blue</span> = opening string (back). Hand back up, thumb on your left.</p>
+  </div>
+
+  <div class="row" style="gap:5mm">
+    <figure style="width:88mm">
+      <svg viewBox="0 0 960 1280" style="width:88mm;border-radius:2mm" xmlns="http://www.w3.org/2000/svg">
+        <image href="img/photo.jpg" x="0" y="0" width="960" height="1280"/>
+        <ellipse cx="437" cy="603" rx="62" ry="22" fill="none" stroke="#ff2d2d" stroke-width="6" stroke-dasharray="14 9"/>
+        <g stroke="#fff" stroke-width="5"><line x1="545" y1="525" x2="482" y2="540"/><line x1="590" y1="640" x2="500" y2="606"/><line x1="700" y1="672" x2="612" y2="752"/><line x1="530" y1="380" x2="452" y2="408"/><line x1="610" y1="215" x2="515" y2="238"/></g>
+        <g font-size="40" font-weight="800" text-anchor="middle" fill="#fff">
+          <circle cx="250" cy="985" r="34" fill="#1e7d45" stroke="#fff" stroke-width="5"/><text x="250" y="999">1</text>
+          <circle cx="560" cy="522" r="34" fill="#1e7d45" stroke="#fff" stroke-width="5"/><text x="560" y="536">2</text>
+          <circle cx="612" cy="648" r="34" fill="#c62828" stroke="#fff" stroke-width="5"/><text x="612" y="662">3</text>
+          <circle cx="712" cy="660" r="34" fill="#c62828" stroke="#fff" stroke-width="5"/><text x="712" y="674">4</text>
+          <circle cx="548" cy="372" r="34" fill="#d97706" stroke="#fff" stroke-width="5"/><text x="548" y="386">5</text>
+          <circle cx="632" cy="208" r="34" fill="#d97706" stroke="#fff" stroke-width="5"/><text x="632" y="222">6</text>
+        </g>
+      </svg>
+      <figcaption>Your photo, marked up.</figcaption>
+    </figure>
+    <div class="col" style="flex:1">
+      <div class="legend">
+        <div><span class="badge bg-ok">1</span><span><b>Fingers strung.</b> 10 ends out of the palm grid. Good.</span></div>
+        <div><span class="badge bg-ok">2</span><span><b>Gear on</b>, round hub toward the hand. Good.</span></div>
+        <div><span class="badge bg-bad">3</span><span><b>Ring 3 is missing here.</b> It must sit between the palm and the gear. Fix in <b>Step 1</b>.</span></div>
+        <div><span class="badge bg-bad">4</span><span><b>Thumb is loose</b>, hanging on its line. Fix in <b>Step 2</b>.</span></div>
+        <div><span class="badge bg-mid">5</span><span class="badge bg-mid" style="margin-left:-1.5mm">6</span><span><b>Block and flat piece:</b> slide them off the strings. Only ring 3, gear, ring 2 go on now (<b>Step 1</b>).</span></div>
+      </div>
+      <div class="note"><b>You need:</b>
+        <ul class="kit">
+          <li>Fevikwik + toothpick</li><li>Bamboo skewer</li><li>Masking tape</li><li>Marker pen</li><li>Scissors, tweezers</li><li>Laptop + Uno + USB</li><li>Servo power (AA pack)</li><li>Your assembly guide</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="step" style="gap:2.5mm">
+    <div class="step-h"><h2 style="font-size:13pt">The 10 steps</h2></div>
+    <div class="map">
+      <div><b>1</b>Fix the order on the strings</div>
+      <div><b>2</b>Fix the thumb to the palm</div>
+      <div><b>3</b>Check the forearm is ready</div>
+      <div><b>4</b>Ring 1, then the comb</div>
+      <div><b>5</b>String guide</div>
+      <div><b>6</b>Strings to the servos</div>
+      <div><b>7</b>Slide wrist home, glue, skewer</div>
+      <div><b>8</b>Servos to 0&deg;, pulleys on</div>
+      <div><b>9</b>Tie the strings on</div>
+      <div><b>10</b>Test and tune</div>
+    </div>
+  </div>
+
+  <figure>
+    <img class="pic" src="img/r1_0.jpg" style="width:100%">
+    <figcaption>The goal: the finished arm from above. Servos and pulleys at the elbow end (left), hand on the right.</figcaption>
+  </figure>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly &middot; 7 Oct 2026</span><span>1</span></div>
+</section>
+
+<!-- ============ PAGE 2: STEP 1 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">1</span><h2>Fix the order on the strings</h2><span class="tag t-red">No glue yet</span></div>
+
+    <svg viewBox="0 0 1000 330" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- loose group bracket -->
+      <path d="M140 40 V28 H440 V40" fill="none" stroke="#c62828" stroke-width="3"/>
+      <text x="290" y="20" text-anchor="middle" font-size="17" font-weight="800" fill="#c62828">LOOSE ON THE STRINGS (this step)</text>
+      <!-- forearm box -->
+      <rect x="470" y="48" width="520" height="215" rx="18" fill="#f1f4f7" stroke="#8d99a6" stroke-width="3" stroke-dasharray="12 8"/>
+      <text x="730" y="38" text-anchor="middle" font-size="17" font-weight="800" fill="#55636f">FIXED IN THE FOREARM (Steps 3 to 6)</text>
+      <!-- strings -->
+      <g stroke-width="4" fill="none">
+        <path d="M120 141 H735 C790 141 800 95 860 95" stroke="#1e64c8"/>
+        <path d="M120 149 H735 C790 149 800 103 860 103" stroke="#d32f2f"/>
+        <path d="M120 157 H735 L860 152" stroke="#1e64c8"/>
+        <path d="M120 165 H735 L860 160" stroke="#d32f2f"/>
+        <path d="M120 173 H735 C790 173 800 213 860 210" stroke="#1e64c8"/>
+        <path d="M120 181 H735 C790 181 800 221 860 218" stroke="#d32f2f"/>
+      </g>
+      <!-- hand -->
+      <g fill="#c9d1d9" stroke="#55636f" stroke-width="2.5">
+        <rect x="55" y="100" width="70" height="120" rx="8"/>
+        <rect x="8" y="104" width="52" height="20" rx="9"/><rect x="2" y="130" width="58" height="20" rx="9"/>
+        <rect x="6" y="156" width="54" height="20" rx="9"/><rect x="16" y="182" width="44" height="18" rx="9"/>
+        <rect x="70" y="214" width="30" height="40" rx="9" transform="rotate(-30 85 234)"/>
+      </g>
+      <text x="62" y="285" text-anchor="middle" font-size="17" font-weight="800" fill="#1e7d45">HAND &#10004;</text>
+      <!-- ring 3 -->
+      <g fill="#bfe3cc" stroke="#1e7d45" stroke-width="3">
+        <rect x="150" y="92" width="12" height="22" rx="3"/><rect x="150" y="206" width="12" height="22" rx="3"/>
+        <rect x="160" y="88" width="34" height="144" rx="8"/>
+      </g>
+      <circle cx="156" cy="103" r="4" fill="#fff"/><circle cx="156" cy="217" r="4" fill="#fff"/>
+      <text x="177" y="72" text-anchor="middle" font-size="19" font-weight="800">RING 3</text>
+      <text x="177" y="258" text-anchor="middle" font-size="16" fill="#333">ears</text>
+      <text x="177" y="275" text-anchor="middle" font-size="16" fill="#333">&#8592; to hand</text>
+      <!-- gear -->
+      <g stroke="#a86400" stroke-width="3">
+        <rect x="240" y="118" width="26" height="84" rx="5" fill="#f3dfb4"/>
+        <rect x="266" y="80" width="26" height="160" rx="3" fill="#f3dfb4"/>
+      </g>
+      <g stroke="#a86400" stroke-width="3"><line x1="292" y1="92" x2="300" y2="92"/><line x1="292" y1="112" x2="300" y2="112"/><line x1="292" y1="132" x2="300" y2="132"/><line x1="292" y1="188" x2="300" y2="188"/><line x1="292" y1="208" x2="300" y2="208"/><line x1="292" y1="228" x2="300" y2="228"/></g>
+      <text x="270" y="72" text-anchor="middle" font-size="19" font-weight="800">GEAR</text>
+      <text x="270" y="258" text-anchor="middle" font-size="16" fill="#333">hub &#8592; hand</text>
+      <text x="270" y="275" text-anchor="middle" font-size="16" fill="#333">1 hole each</text>
+      <!-- ring 2 -->
+      <rect x="342" y="96" width="70" height="128" rx="12" fill="#c7daf3" stroke="#1e64c8" stroke-width="3"/>
+      <text x="377" y="72" text-anchor="middle" font-size="19" font-weight="800">RING 2</text>
+      <text x="377" y="258" text-anchor="middle" font-size="16" fill="#333">big centre</text>
+      <text x="377" y="275" text-anchor="middle" font-size="16" fill="#333">hole</text>
+      <!-- ring 1 -->
+      <rect x="490" y="86" width="30" height="148" rx="6" fill="#dfe3e8" stroke="#55636f" stroke-width="3"/>
+      <text x="505" y="78" text-anchor="middle" font-size="16" font-weight="800">RING 1</text>
+      <text x="505" y="290" text-anchor="middle" font-size="16" fill="#333">through</text>
+      <text x="505" y="306" text-anchor="middle" font-size="16" fill="#333">centre</text>
+      <!-- lock block + comb -->
+      <rect x="560" y="192" width="104" height="52" rx="4" fill="#dfe3e8" stroke="#55636f" stroke-width="3"/>
+      <rect x="566" y="184" width="92" height="12" fill="#f3dfb4" stroke="#a86400" stroke-width="2.5"/>
+      <text x="612" y="224" text-anchor="middle" font-size="12" fill="#333">lock block</text>
+      <text x="612" y="78" text-anchor="middle" font-size="16" font-weight="800">COMB</text>
+      <text x="612" y="290" text-anchor="middle" font-size="16" fill="#333">strings lie in</text>
+      <text x="612" y="306" text-anchor="middle" font-size="16" fill="#333">slots, NOT through</text>
+      <!-- string guide -->
+      <rect x="712" y="86" width="16" height="148" rx="3" fill="#bfe3cc" stroke="#1e7d45" stroke-width="3"/>
+      <text x="720" y="78" text-anchor="middle" font-size="16" font-weight="800">STRING GUIDE</text>
+      <text x="720" y="290" text-anchor="middle" font-size="16" fill="#333">1 hole</text>
+      <text x="720" y="306" text-anchor="middle" font-size="16" fill="#333">each</text>
+      <!-- servos -->
+      <g stroke-width="3"><circle cx="882" cy="99" r="24" fill="#f6d6b0" stroke="#d97706"/><circle cx="882" cy="156" r="24" fill="#bfe3cc" stroke="#1e7d45"/><circle cx="882" cy="214" r="24" fill="#ddc9ee" stroke="#7b3fa8"/></g>
+      <g font-size="16" font-weight="800"><text x="910" y="105">S1</text><text x="910" y="162">S2</text><text x="910" y="220">S3</text></g>
+    </svg>
+
+    <div class="row">
+      <div class="col" style="flex:1.25">
+        <ol class="do">
+          <li><b>Slide off</b> everything on the <b>loose ends</b>: the block, the flat piece, the gear. The hand stays strung.</li>
+          <li>Thread <b>ring 3</b>: all 10 ends through its big centre hole. <b>Ears toward the hand.</b></li>
+          <li>Thread the <b>gear</b>: each end through <b>its own hole</b> (map). <b>Round hub toward the hand</b>, teeth toward the forearm.</li>
+          <li>Thread <b>ring 2</b>: all 10 through its big centre hole.</li>
+          <li>Leave all three loose. <b>No glue.</b></li>
+        </ol>
+        <div class="warn">Always slide parts on and off from the <b>loose ends</b>. Never pull strings back out of the palm.</div>
+      </div>
+      <figure style="flex:1">
+        <img class="pic" src="img/r5_1.jpg" style="width:62mm;margin:0 auto">
+        <figcaption>Gear seen from the <b>teeth side</b>. <span class="b">Top row blue</span>, <span class="r">bottom row red</span>. T I M R L, left to right.</figcaption>
+      </figure>
+    </div>
+    <div class="done">from the palm: ring 3 &#8594; gear &#8594; ring 2 &#8594; loose ends. Nothing else on the strings.</div>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 1931 453" style="width:100%" class="pic" xmlns="http://www.w3.org/2000/svg">
+      <image href="img/r5_0.jpg" width="1931" height="453"/>
+      <g font-size="44" font-weight="800">
+        <text x="120" y="420" fill="#55636f">FOREARM</text>
+        <text x="1650" y="440" fill="#55636f">HAND</text>
+        <text x="700" y="50" fill="#1e64c8">ring 2</text>
+        <text x="710" y="440" fill="#a86400">comb</text>
+        <text x="1150" y="440" fill="#a86400">gear</text>
+        <text x="1440" y="50" fill="#1e7d45">ring 3</text>
+      </g>
+    </svg>
+    <figcaption>Same order in 3D, side view (from your stringing guide). Hand on the right here.</figcaption>
+  </figure>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>2</span></div>
+</section>
+
+<!-- ============ PAGE 3: STEP 2 + 3 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">2</span><h2>Fix the thumb to the palm</h2><span class="tag t-amber">Fevikwik dots</span></div>
+    <div class="row">
+      <figure style="width:70mm;flex:none">
+        <svg viewBox="0 0 380 260" class="pic" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+          <image href="img/photo_thumb.jpg" width="380" height="260"/>
+          <path d="M150 60 C130 70 110 95 100 118" fill="none" stroke="#ff2d2d" stroke-width="5" marker-end="url(#ah)"/>
+          <path d="M190 200 C170 180 145 150 132 132" fill="none" stroke="#ff2d2d" stroke-width="5" marker-end="url(#ah)"/>
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#ff2d2d"/></marker></defs>
+          <rect x="138" y="6" width="236" height="44" rx="8" fill="#fff" opacity=".92"/>
+          <text x="256" y="35" text-anchor="middle" font-size="21" font-weight="800" fill="#c62828">NOW: gap. Close it.</text>
+        </svg>
+        <figcaption>Your photo: the thumb's wide end is off the palm.</figcaption>
+      </figure>
+      <figure style="width:62mm;flex:none">
+        <svg viewBox="0 0 470 380" class="pic" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+          <image href="img/thumb_render.jpg" width="470" height="380"/>
+          <circle cx="272" cy="262" r="40" fill="none" stroke="#1e7d45" stroke-width="5"/>
+          <rect x="10" y="318" width="300" height="50" rx="8" fill="#fff" opacity=".92"/>
+          <text x="160" y="351" text-anchor="middle" font-size="23" font-weight="800" fill="#1e7d45">GOAL: flat on the tab</text>
+        </svg>
+        <figcaption>Goal: the wide end sits flat on the angled tab of the palm.</figcaption>
+      </figure>
+    </div>
+    <ol class="do">
+      <li>Push the thumb's <b>wide (funnel) end</b> flat against the <b>angled tab</b> on the palm. Its line runs straight from the tab into the funnel.</li>
+      <li>Put <b>2 or 3 tiny Fevikwik dots</b> on the <b>outer edge</b> of the joint, with a toothpick. <b>Nowhere near the centre hole</b> where the line runs.</li>
+      <li>Hold 30 seconds. Point the thumb the same way as in the goal picture.</li>
+    </ol>
+    <div class="done">thumb is solid on the palm, and pulling its <span class="r">red</span> end still bends it.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-h"><span class="num">3</span><h2>Check the forearm is ready</h2><span class="tag t-blue">Check</span></div>
+    <div class="row">
+      <figure style="width:40mm;flex:none">
+        <svg viewBox="0 0 455 1087" class="pic" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+          <image href="img/r6_1.jpg" width="455" height="1087"/>
+          <g font-size="34" font-weight="800">
+            <rect x="150" y="70" width="200" height="50" rx="8" fill="#fff" opacity=".9"/><text x="160" y="107" fill="#a86400">comb</text>
+            <rect x="250" y="535" width="200" height="50" rx="8" fill="#fff" opacity=".9"/><text x="258" y="572" fill="#1e7d45">guide</text>
+            <rect x="40" y="840" width="90" height="50" rx="8" fill="#fff" opacity=".9"/><text x="58" y="877" fill="#d97706">S1</text>
+            <rect x="160" y="740" width="90" height="50" rx="8" fill="#fff" opacity=".9"/><text x="178" y="777" fill="#1e7d45">S2</text>
+            <rect x="300" y="840" width="90" height="50" rx="8" fill="#fff" opacity=".9"/><text x="318" y="877" fill="#7b3fa8">S3</text>
+          </g>
+          <text x="227" y="30" text-anchor="middle" font-size="30" font-weight="800" fill="#55636f">&#8593; HAND</text>
+        </svg>
+        <figcaption>Forearm from above (lid off). Hand end at the top.</figcaption>
+      </figure>
+      <div class="col" style="flex:1">
+        <ul class="do" style="list-style:none;padding-left:0">
+          <li>&#9744; <b>3 servos in place.</b> Hand end away from you:<br>
+            <span style="color:#d97706;font-weight:700">S1 thumb</span> left, <span class="g">S2 index</span> middle, <span style="color:#7b3fa8;font-weight:700">S3 middle + ring + little</span> right.</li>
+          <li>&#9744; <b>String guide</b> (green) in place, between the comb and the servos.</li>
+          <li>&#9744; <b>Ring 1</b> glued on the wrist end of the forearm.</li>
+          <li>&#9744; <b>Lock block + comb</b> glued at the wrist end (comb on top of the block).</li>
+          <li>&#9744; <b>Pulleys OFF</b> for now. They go on in Step 8.</li>
+        </ul>
+        <div class="warn">Any box empty? Do it now with your <b>assembly guide, steps up to 21</b>. Then come back to Step 4.</div>
+        <div class="note">Label each servo cable with tape: <b>S1</b>, <b>S2</b>, <b>S3</b>. You need this in Step 8.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>3</span></div>
+</section>
+
+<!-- ============ PAGE 4: STEP 4 + 5 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">4</span><h2>Through ring 1, then into the comb</h2><span class="tag t-amber">Comb</span></div>
+    <div class="row">
+      <div class="col" style="flex:1">
+        <ol class="do">
+          <li>Hold the forearm with the <b>lid side up</b>.</li>
+          <li>Push all <b>10 loose ends</b> through <b>ring 1's centre hole</b>, into the forearm.</li>
+          <li>Go <b>over</b> the lock block, not through it.</li>
+          <li>Press each string down into <b>its slot</b> in the comb. Left to right:</li>
+        </ol>
+        <div style="font-size:10pt;line-height:2">
+          <span class="chip c-r">T</span><span class="chip c-b">T</span><span class="chip c-r">I</span><span class="chip c-b">I</span><span class="chip c-g">M</span><span class="chip c-g">R</span><span class="chip c-r">L</span><span class="chip c-b">L</span>
+        </div>
+        <div class="note"><b>Grey</b> = that finger's red and blue share one slot (middle, ring).</div>
+      </div>
+      <figure style="width:66mm;flex:none">
+        <img class="pic" src="img/r5_2.jpg">
+        <figcaption>Comb from above. Hand end at the top. Thumb on the left.</figcaption>
+      </figure>
+    </div>
+    <div class="done">10 strings through ring 1, each lying in its comb slot, none crossing.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-h"><span class="num">5</span><h2>Through the string guide</h2><span class="tag t-green">String guide</span></div>
+    <figure>
+      <img class="pic" src="img/r6_0.jpg" style="width:120mm;margin:0 auto">
+      <figcaption style="text-align:center">String guide, looking toward the hand. Thumb on the left. Unmarked holes are spare.</figcaption>
+    </figure>
+    <ol class="do">
+      <li>Push each string through <b>its own hole</b> in the green string guide, toward the servos.</li>
+      <li><b>Thumb</b> holes on the left. <b>Index</b> in the middle. <b>Middle + ring + little</b> on the right.</li>
+      <li><b>Ring and little share a hole</b>: one for both reds <span class="chip c-r">RL</span>, one for both blues <span class="chip c-b">RL</span>.</li>
+      <li>Pull each string gently. If it rubs or crosses another, swap its hole.</li>
+    </ol>
+    <div class="done">every string goes straight from its comb slot to its guide hole. No crossings.</div>
+  </div>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>4</span></div>
+</section>
+
+<!-- ============ PAGE 5: STEP 6 + 7 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">6</span><h2>Bring each pair to its servo</h2><span class="tag t-amber">Don't tie yet</span></div>
+    <div class="row">
+      <figure style="width:58mm;flex:none">
+        <img class="pic" src="img/r7_0.jpg">
+        <figcaption>Strings from the wrist (right) to the 3 pulleys.</figcaption>
+      </figure>
+      <div class="col" style="flex:1">
+        <table class="fix">
+          <tr><th>Strings</th><th>Go to</th></tr>
+          <tr><td><span class="chip c-r">T</span><span class="chip c-b">T</span> thumb (2)</td><td><b style="color:#d97706">S1</b>, left</td></tr>
+          <tr><td><span class="chip c-r">I</span><span class="chip c-b">I</span> index (2)</td><td><b class="g">S2</b>, middle</td></tr>
+          <tr><td><span class="chip c-r">M</span><span class="chip c-b">M</span><span class="chip c-r">R</span><span class="chip c-b">R</span><span class="chip c-r">L</span><span class="chip c-b">L</span> (6)</td><td><b style="color:#7b3fa8">S3</b>, right</td></tr>
+        </table>
+        <ol class="do">
+          <li>Let each group hang next to its servo.</li>
+          <li>Tape each group to the forearm wall with masking tape, so they don't mix.</li>
+          <li><b>Don't tie.</b> Keep at least 15 cm spare on each.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-h"><span class="num">7</span><h2>Slide the wrist home, glue, fix the hand</h2><span class="tag t-red">Glue: dots only</span></div>
+    <svg viewBox="0 0 1000 300" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1b4f8a"/></marker>
+      <marker id="ag" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c62828"/></marker></defs>
+      <!-- strings -->
+      <g stroke-width="4"><line x1="120" y1="150" x2="985" y2="150" stroke="#1e64c8"/><line x1="120" y1="160" x2="985" y2="160" stroke="#d32f2f"/></g>
+      <!-- hand -->
+      <g fill="#c9d1d9" stroke="#55636f" stroke-width="2.5">
+        <rect x="55" y="95" width="80" height="130" rx="8"/>
+        <rect x="8" y="100" width="52" height="20" rx="9"/><rect x="2" y="126" width="58" height="20" rx="9"/>
+        <rect x="6" y="152" width="54" height="20" rx="9"/><rect x="16" y="178" width="44" height="18" rx="9"/>
+        <rect x="128" y="96" width="34" height="22" rx="4"/><rect x="128" y="202" width="34" height="22" rx="4"/>
+      </g>
+      <!-- ring 3 with ears overlapping hand tabs -->
+      <g fill="#bfe3cc" stroke="#1e7d45" stroke-width="3">
+        <rect x="150" y="100" width="22" height="16" rx="3"/><rect x="150" y="204" width="22" height="16" rx="3"/>
+        <rect x="170" y="88" width="34" height="144" rx="8"/>
+      </g>
+      <!-- skewer -->
+      <line x1="156" y1="62" x2="156" y2="258" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="156" cy="62" r="7" fill="#ffd400" stroke="#a86400" stroke-width="2"/><circle cx="156" cy="258" r="7" fill="#ffd400" stroke="#a86400" stroke-width="2"/>
+      <text x="40" y="52" font-size="18" font-weight="800" fill="#8b5a2b">SKEWER</text>
+      <!-- gear -->
+      <rect x="204" y="118" width="26" height="84" rx="5" fill="#f3dfb4" stroke="#a86400" stroke-width="3"/>
+      <rect x="230" y="80" width="26" height="160" rx="3" fill="#f3dfb4" stroke="#a86400" stroke-width="3"/>
+      <!-- ring 2 -->
+      <rect x="256" y="96" width="70" height="128" rx="12" fill="#c7daf3" stroke="#1e64c8" stroke-width="3"/>
+      <!-- ring 1 + forearm -->
+      <rect x="326" y="86" width="30" height="148" rx="6" fill="#dfe3e8" stroke="#55636f" stroke-width="3"/>
+      <path d="M356 70 H900 Q960 70 960 130 V190 Q960 250 900 250 H356 Z" fill="#f1f4f7" stroke="#8d99a6" stroke-width="3"/>
+      <text x="640" y="110" text-anchor="middle" font-size="20" font-weight="800" fill="#55636f">FOREARM</text>
+      <!-- glue dots -->
+      <g fill="#ffd400" stroke="#a86400" stroke-width="2">
+        <circle cx="204" cy="92" r="7"/><circle cx="204" cy="228" r="7"/>
+        <circle cx="256" cy="92" r="7"/><circle cx="256" cy="228" r="7"/>
+        <circle cx="326" cy="92" r="7"/><circle cx="326" cy="228" r="7"/>
+      </g>
+      <!-- labels -->
+      <g font-size="15" font-weight="700" text-anchor="middle"><text x="187" y="282">ring 3</text><text x="243" y="282">gear</text><text x="291" y="282">ring 2</text><text x="341" y="282">ring 1</text></g>
+      <path d="M420 40 H250" stroke="#1b4f8a" stroke-width="4" marker-end="url(#ar)"/>
+      <text x="430" y="46" font-size="17" font-weight="800" fill="#1b4f8a">slide together</text>
+      <path d="M850 185 H945" stroke="#c62828" stroke-width="4" marker-end="url(#ag)"/>
+      <text x="945" y="238" text-anchor="end" font-size="17" font-weight="800" fill="#c62828">pull slack out at the servo end</text>
+      <circle cx="560" cy="200" r="8" fill="#ffd400" stroke="#a86400" stroke-width="2"/>
+      <text x="575" y="206" font-size="16" font-weight="700">= tiny glue dot, outer rim only</text>
+    </svg>
+    <ol class="do">
+      <li>Slide <b>ring 2, gear, ring 3</b> up against ring 1. At the same time <b>pull the loose ends</b> at the servo end, so no loops get trapped.</li>
+      <li>Hand fully open. Put <b>tiny Fevikwik dots</b> on the <b>outer rim</b> where each part touches the next. Keep glue away from the centre and the strings.</li>
+      <li>Slide the hand up to <b>ring 3</b>. Line up the holes in ring 3's ears and the palm's wrist tabs (as in assembly guide step 23).</li>
+      <li>Push the <b>skewer</b> through all the holes. Cut it 2 mm past each side. One dot of glue on each skewer end only.</li>
+    </ol>
+    <div class="warn">Never let glue touch a string. A glued string can't slide, and that finger is dead.</div>
+    <div class="done">pull each of the 10 strings at the servo end: every one still slides and moves its finger.</div>
+  </div>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>5</span></div>
+</section>
+
+<!-- ============ PAGE 6: STEP 8 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">8</span><h2>Servos to 0&deg;, then fit the pulleys</h2><span class="tag t-purple">Laptop</span></div>
+    <svg viewBox="0 0 1000 300" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- Uno -->
+      <rect x="20" y="50" width="250" height="200" rx="14" fill="#1d6f8f" stroke="#0f4458" stroke-width="3"/>
+      <text x="145" y="95" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">ARDUINO UNO</text>
+      <g font-size="20" font-weight="800" fill="#fff"><text x="190" y="140">pin 9</text><text x="190" y="180">pin 6</text><text x="190" y="220">pin 5</text></g>
+      <g fill="#ffd400"><circle cx="262" cy="133" r="7"/><circle cx="262" cy="173" r="7"/><circle cx="262" cy="213" r="7"/></g>
+      <!-- signal wires -->
+      <g stroke="#f08c00" stroke-width="6" fill="none">
+        <path d="M262 133 H520 V95 H600"/><path d="M262 173 H600"/><path d="M262 213 H520 V251 H600"/>
+      </g>
+      <text x="380" y="125" font-size="15" fill="#55636f">orange wire</text>
+      <!-- servos -->
+      <g stroke-width="3">
+        <rect x="600" y="70" width="140" height="50" rx="6" fill="#f6d6b0" stroke="#d97706"/>
+        <rect x="600" y="148" width="140" height="50" rx="6" fill="#bfe3cc" stroke="#1e7d45"/>
+        <rect x="600" y="226" width="140" height="50" rx="6" fill="#ddc9ee" stroke="#7b3fa8"/>
+      </g>
+      <g font-size="20" font-weight="800"><text x="618" y="103">S1</text><text x="618" y="181">S2</text><text x="618" y="259">S3</text></g>
+      <g font-size="19" font-weight="700"><text x="760" y="103">thumb</text><text x="760" y="181">index</text><text x="760" y="259">middle+ring+little</text></g>
+      <text x="600" y="40" font-size="16" fill="#55636f">brown = &#8722;  &#183;  red = + (AA pack)  &#183;  orange = signal</text>
+    </svg>
+    <ol class="do">
+      <li>Plug the servo cables: <b>S1 &#8594; pin 9</b>, <b>S2 &#8594; pin 6</b>, <b>S3 &#8594; pin 5</b>. Power as in your wiring guide (AA pack on the servos, grounds joined).</li>
+      <li>In Arduino IDE open <code>firmware/servo_zero/servo_zero.ino</code> and <b>Upload</b>. Electrodes OFF.</li>
+      <li>All 3 servos go to <b>0&deg;</b> and stay there. (They twitch once after 3 s. Ignore it for now.)</li>
+      <li>Push each pulley <b>straight down</b> onto its servo. <b>Don't turn the shaft.</b> Turn the pulley so its <b>tie hole points to the elbow</b> (away from the hand).</li>
+      <li>Press the Uno's <b>RESET</b> button. After 3 s, S1, then S2, then S3 turns a little toward <b>close</b> and back.</li>
+      <li>Watch each one. <b>Draw an arrow</b> on top of each pulley in the way it turned.</li>
+    </ol>
+    <div class="row" style="align-items:center">
+      <svg viewBox="0 0 300 260" style="width:68mm;flex:none" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ak" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111"/></marker></defs>
+        <text x="150" y="26" text-anchor="middle" font-size="19" font-weight="800" fill="#55636f">&#8593; HAND</text>
+        <circle cx="150" cy="135" r="80" fill="#eef1f4" stroke="#55636f" stroke-width="5"/>
+        <circle cx="150" cy="135" r="64" fill="none" stroke="#b9c2cb" stroke-width="3"/>
+        <circle cx="150" cy="135" r="14" fill="#55636f"/>
+        <circle cx="150" cy="205" r="7" fill="#111"/>
+        <path d="M108 95 A58 58 0 0 1 192 95" fill="none" stroke="#111" stroke-width="7" stroke-linecap="round" marker-end="url(#ak)"/>
+        <text x="150" y="250" text-anchor="middle" font-size="17" font-weight="700">tie hole &#8594; elbow</text>
+        <text x="150" y="160" text-anchor="middle" font-size="15" font-weight="700" fill="#111">your arrow</text>
+      </svg>
+      <div class="col" style="flex:1">
+        <div class="note">Pulley sits on a servo horn? Glue the horn into the pulley first (Fevikwik, wait 2 min). Then push it on.</div>
+        <div class="note">Missed the turn? Press RESET again. It repeats every time.</div>
+        <div class="done">3 pulleys on, servos at 0&deg;, an arrow on each pulley showing "close".</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>6</span></div>
+</section>
+
+<!-- ============ PAGE 7: STEP 9 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">9</span><h2>Tie the strings to the pulleys</h2><span class="tag t-red">Hand open</span></div>
+    <p style="margin:0;font-size:11pt">Look down at the pulley, <b>hand end at the top</b>. Pick the picture that matches <b>your arrow</b>:</p>
+    <div class="row">
+      <svg viewBox="0 0 460 400" style="flex:1" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="m1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111"/></marker></defs>
+        <rect x="2" y="2" width="456" height="396" rx="14" fill="#fbfcfd" stroke="#d3dae1" stroke-width="3"/>
+        <text x="230" y="40" text-anchor="middle" font-size="24" font-weight="800">Arrow turns CLOCKWISE</text>
+        <text x="230" y="70" text-anchor="middle" font-size="17" fill="#55636f">&#8593; to the hand</text>
+        <circle cx="230" cy="230" r="70" fill="#eef1f4" stroke="#55636f" stroke-width="5"/>
+        <circle cx="230" cy="230" r="14" fill="#55636f"/>
+        <path d="M300 82 L300 230 A70 70 0 0 1 230 300" fill="none" stroke="#d32f2f" stroke-width="8"/>
+        <path d="M160 82 L160 230 A70 70 0 0 0 230 300" fill="none" stroke="#1e64c8" stroke-width="8"/>
+        <circle cx="230" cy="300" r="10" fill="#111"/>
+        <path d="M190 190 A48 48 0 0 1 270 190" fill="none" stroke="#111" stroke-width="6" marker-end="url(#m1)"/>
+        <text x="312" y="120" font-size="20" font-weight="800" fill="#d32f2f">RED</text>
+        <text x="312" y="144" font-size="16" fill="#d32f2f">right side</text>
+        <text x="62" y="120" font-size="20" font-weight="800" fill="#1e64c8">BLUE</text>
+        <text x="62" y="144" font-size="16" fill="#1e64c8">left side</text>
+        <text x="230" y="345" text-anchor="middle" font-size="17" font-weight="700">both tie at the hole (elbow side)</text>
+      </svg>
+      <svg viewBox="0 0 460 400" style="flex:1" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="m2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111"/></marker></defs>
+        <rect x="2" y="2" width="456" height="396" rx="14" fill="#fbfcfd" stroke="#d3dae1" stroke-width="3"/>
+        <text x="230" y="40" text-anchor="middle" font-size="24" font-weight="800">Arrow turns ANTICLOCKWISE</text>
+        <text x="230" y="70" text-anchor="middle" font-size="17" fill="#55636f">&#8593; to the hand</text>
+        <circle cx="230" cy="230" r="70" fill="#eef1f4" stroke="#55636f" stroke-width="5"/>
+        <circle cx="230" cy="230" r="14" fill="#55636f"/>
+        <path d="M160 82 L160 230 A70 70 0 0 0 230 300" fill="none" stroke="#d32f2f" stroke-width="8"/>
+        <path d="M300 82 L300 230 A70 70 0 0 1 230 300" fill="none" stroke="#1e64c8" stroke-width="8"/>
+        <circle cx="230" cy="300" r="10" fill="#111"/>
+        <path d="M270 190 A48 48 0 0 0 190 190" fill="none" stroke="#111" stroke-width="6" marker-end="url(#m2)"/>
+        <text x="62" y="120" font-size="20" font-weight="800" fill="#d32f2f">RED</text>
+        <text x="62" y="144" font-size="16" fill="#d32f2f">left side</text>
+        <text x="312" y="120" font-size="20" font-weight="800" fill="#1e64c8">BLUE</text>
+        <text x="312" y="144" font-size="16" fill="#1e64c8">right side</text>
+        <text x="230" y="345" text-anchor="middle" font-size="17" font-weight="700">both tie at the hole (elbow side)</text>
+      </svg>
+    </div>
+    <div class="note">Why: the "close" turn winds <span class="r">red</span> onto the pulley (finger bends) and lets <span class="b">blue</span> off at the same time.</div>
+    <ol class="do">
+      <li><b>Check first:</b> pull the <span class="r">red</span> end by hand, the finger closes. Pull <span class="b">blue</span>, it opens. If not, they're swapped: swap the colour tape.</li>
+      <li>All fingers <b>straight</b>. Servo still at 0&deg; (servo_zero running).</li>
+      <li><span class="r">Red</span>: down its side, around the pulley groove, through the tie hole (no hole: round the horn arm). Pull until the slack is gone but the finger <b>does not bend</b>. Tie 3 knots.</li>
+      <li><span class="b">Blue</span>: down the other side, through the same hole. Pull <b>just snug</b>. Tie 3 knots.</li>
+      <li>One tiny drop of Fevikwik on each <b>knot</b> only. Cut the ends to 1 cm.</li>
+    </ol>
+    <div class="warn"><b>S3 has 6 strings.</b> Tie the 3 reds (M, R, L) one at a time, each just snug, then the 3 blues. All 3 fingers must start bending together.</div>
+    <div class="done">S1, S2, S3 tied. Hand stays fully open. No string is slack.</div>
+  </div>
+  <div class="foot"><span>Somatic Arm &middot; finish the assembly</span><span>7</span></div>
+</section>
+
+<!-- ============ PAGE 8: STEP 10 ============ -->
+<section class="page">
+  <div class="step">
+    <div class="step-h"><span class="num">10</span><h2>Test and tune</h2><span class="tag t-green">Test</span></div>
+    <div class="row">
+      <div class="col" style="flex:1">
+        <p style="margin:0;font-size:11pt"><b>A. Servo test</b> (no muscle sensor needed)</p>
+        <ol class="do">
+          <li>Upload <code>firmware/servo_test/servo_test.ino</code>. Electrodes OFF.</li>
+          <li>It closes and opens <b>S1</b>, then <b>S2</b>, then <b>S3</b>, one at a time.</li>
+          <li>Then all 3 close and open together, 5 times. It repeats.</li>
+        </ol>
+      </div>
+      <div class="col" style="flex:1">
+        <p style="margin:0;font-size:11pt"><b>B. Real use</b> (muscle sensor)</p>
+        <ol class="do">
+          <li>Upload <code>firmware/somatic_arm/somatic_arm.ino</code>. Unplug USB.</li>
+          <li>Electrodes on. LED <b>solid</b>: relax 3 s. LED <b>blinking</b>: squeeze hard 3 s. LED <b>off</b>: ready.</li>
+          <li>Squeeze: hand closes. Relax: it opens.</li>
+        </ol>
+      </div>
+    </div>
+    <table class="fix">
+      <tr><th style="width:44%">If you see this</th><th>Do this</th></tr>
+      <tr><td>Finger <b>opens</b> when its servo says close</td><td>Red and blue are swapped on that pulley. Re-tie them on the opposite sides.</td></tr>
+      <tr><td>Finger closes only a little</td><td>Re-tie its <span class="r">red</span> 2 to 3 mm tighter. Still short: raise that servo's <code>CLOSED_ANGLE</code> by 5.</td></tr>
+      <tr><td>Servo <b>buzzes</b> or gets hot when closed</td><td>Lower that servo's <code>CLOSED_ANGLE</code> by 5 (e.g. 90 &#8594; 85). Repeat until quiet.</td></tr>
+      <tr><td>Finger stays bent when open</td><td><span class="b">Blue</span> too loose. Re-tie it snug.</td></tr>
+      <tr><td>One of M / R / L lags the others</td><td>Its <span class="r">red</span> is looser. Re-tie it a little tighter.</td></tr>
+      <tr><td>String slips on the pulley</td><td>Re-knot through the hole, 3 knots, drop of Fevikwik on the knot.</td></tr>
+      <tr><td>Uno restarts mid-test (Serial Monitor shows "servo test start" again)</td><td>Weak AA cells or a loose power wire. Fresh cells, check the breadboard wires.</td></tr>
+    </table>
+    <div class="note"><b>Where to change angles:</b> line <code>const int CLOSED_ANGLE[3] = {90, 90, 90};</code> &nbsp;Order is S1 thumb, S2 index, S3 M+R+L. Change it the same way in <b>somatic_arm.ino</b>, <b>servo_test.ino</b> and <b>servo_zero.ino</b>.</div>
+    <div class="row" style="align-items:center">
+      <img class="pic" src="img/r4_0.jpg" style="width:52mm;flex:none">
+      <div class="col" style="flex:1">
+        <div class="done">all 5 fingers close and open with the servos, 10 times in a row, no buzzing.</div>
+        <div class="note"><b>Last:</b> close the forearm lid. Use tape, not glue, so you can re-tune before the evaluation.</div>
+        <div class="warn">Upload code only with the electrodes OFF your arm (or the laptop charger unplugged).</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Part pictures from the Somatic Arm stringing guide (InMoov by Gael Langevin, inmoov.fr, CC BY-NC).</span><span>8</span></div>
+</section>
+
+</body></html>
